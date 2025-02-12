@@ -1,0 +1,23 @@
+I checked that mksclient binary a bit, it does not do any error checking, so we can patch the binary easily to just open the wrong thing, and silently do nothing. I made this python script that does just that:
+
+--> zie code patch_led.py
+
+Save it somewhere on the sovol machine. Then run these commands via ssh:
+
+systemctl stop makerbase-client.service
+cp printer_data/build/mksclient printer_data/build/mksclient.backup
+python3 patch_led.py --klipper
+sudo reboot
+
+(And if you want to back to normal, run python3 patch_led.py --printer)
+
+After the reboot, add this to the printer.cfg via the web interface in the “machine” section:
+
+[output_pin cameralight]
+pin: rpi:gpiochip2/gpio3
+
+Then you’ll have a camera light toggle in the miscellaneous section of the dashboard.
+
+And can run gcode like SET_PIN PIN=cameralight VALUE=1
+
+And setup any gcode macro you like around this. Like turn it on for the whole print. Or configure it in machine.cfg to turn on when the stepper motors are engaged. Happy hacking :slight_smile:
